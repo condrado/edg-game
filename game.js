@@ -15,11 +15,12 @@ const meteorImg = new Image();
 meteorImg.src = "assets/meteor.svg";
 
 // Estado inicial
-const aceletateValue = 2;
+const aceletateValue = 5;
 let gameStarted = false;
 let gameOver = false;
 let gameWon = false;
-let distanceToMoon = 3000;
+let distanceToMoon = 18672;
+let intervalMeteor = 800;
 
 const ship = {
   x: 100,
@@ -27,7 +28,7 @@ const ship = {
   width: 172,
   height: 85,
   velocityY: 0,
-  speed: 0.4
+  speed: 1
 };
 
 const background = {
@@ -209,13 +210,13 @@ function draw() {
       ctx.rotate(meteor.angle);
       ctx.drawImage(meteorImg, -meteor.width / 2, -meteor.height / 2, meteor.width, meteor.height);
       ctx.restore();
-      drawMeteorBoundingBox(meteor);
+      //drawMeteorBoundingBox(meteor);
     }
   }
 
   const currentShipImg = accelerate ? shipSpeedImg : shipImg;
   ctx.drawImage(currentShipImg, ship.x, ship.y, ship.width, ship.height);
-  drawTriangleBoundingBox();
+  // drawTriangleBoundingBox();
 
   ctx.fillStyle = "#000";
   ctx.font = "20px sans-serif";
@@ -266,7 +267,7 @@ document.getElementById("startBtn").addEventListener("click", () => {
   if (!gameStarted) {
     gameStarted = true;
     startTime = Date.now();
-    meteorInterval = setInterval(spawnMeteor, 1500);
+    meteorInterval = setInterval(spawnMeteor, intervalMeteor);
     document.getElementById("startBtn").style.display = "none";
   }
 });
