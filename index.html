@@ -1,0 +1,63 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Nave a la Luna</title>
+  <style>
+    body {
+      margin: 0;
+      background: #fff;
+      text-align: center;
+    }
+    canvas {
+      display: block;
+      margin: auto;
+      background-color: white;
+      border: 1px solid #000;
+      width: 100%;
+    }
+
+    .game-container {
+      position: relative;
+      width: 100%;
+      max-width: 1600px;
+      margin: auto;
+    }
+
+    #gameCanvas {
+      display: block;
+      width: 100%;
+    }
+
+    .button-overlay {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      display: flex;
+      gap: 20px;
+    }
+
+    .button-overlay button {
+      padding: 10px 20px;
+      font-size: 18px;
+      background-color: black;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+<div class="game-container">
+  <canvas id="gameCanvas" width="1600" height="570"></canvas>
+  <div class="button-overlay">
+    <button id="startBtn">Iniciar Juego</button>
+    <button id="restartBtn" style="display: none;">Volver a Empezar</button>
+  </div>
+</div>
+  <script src="game.js"></script>
+</body>
+</html>
