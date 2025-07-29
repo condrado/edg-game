@@ -219,9 +219,9 @@ function draw() {
   // drawTriangleBoundingBox();
 
   ctx.fillStyle = "#000";
-  ctx.font = "20px sans-serif";
+  ctx.font = "20px slunssen";
   ctx.textAlign = "left";
-  ctx.fillText("Distancia: " + Math.ceil(distance) + " al", 20, 30);
+  ctx.fillText("Distancia: " + Math.ceil(distance) + " años luz", 20, 30);
 
   if (startTime) {
     const now = endTime || Date.now();
@@ -234,7 +234,7 @@ function draw() {
 
   if (gameOver || gameWon) {
     ctx.fillStyle = "#000";
-    ctx.font = "32px sans-serif";
+    ctx.font = "32px slunssen";
     ctx.textAlign = "center";
     const message = gameOver ? "Has chocado!" : "¡Llegaste a la Luna!";
     ctx.fillText(message, canvas.width / 2, 220);

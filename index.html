@@ -5,11 +5,20 @@
   <meta charset="UTF-8">
   <title>Nave a la Luna</title>
   <style>
+
+    @font-face {
+      font-family: 'slunssen';
+      src: url('assets/fonts/Slussen-Regular.otf') format('opentype');
+      font-weight: normal;
+      font-style: normal;
+    }
+
     /* Reset CSS básico */
     * {
       margin: 0;
       padding: 0;
       box-sizing: border-box;
+      font-family: "slunssen";
     }
 
     html, body {
@@ -70,7 +79,7 @@
       left: 50%;
       transform: translate(-50%, -50%);
       display: flex;
-      gap: 20px;
+      gap: 0;
     }
 
     .button-overlay button {
@@ -82,13 +91,72 @@
       border-radius: 8px;
       cursor: pointer;
     }
+
+    .controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 32px;
+    }
+
+    .controls-title {
+      font-size: 24px;
+      font-weight: bold;
+      margin-bottom: 32px;
+    }
+
+    .controls-col-1{
+      width: 100px;
+    }
+
+    .controls-col-2 {
+      width: 360px;
+      display: flex;
+      justify-content: end;
+    }
+
+    .controls-small {
+      width: 100px;
+      height: 100px;
+      border-radius: 8px;
+      border: 1px solid #000000;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background-color: #fff;
+      margin-bottom: 2px;;
+    }
+
+    .controls-big {
+      width: 300px;
+      height: 100px;
+      border-radius: 8px;
+      border: 1px solid #000000;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 12px;
+      background-color: #fff;
+    }
   </style>
 </head>
 <body>
 <div class="game-container">
   <canvas id="gameCanvas" width="1600" height="570"></canvas>
   <div class="button-overlay">
-    <button id="startBtn">Iniciar Juego</button>
+    <div id="startBtn" class="btn-init">
+      <p class="controls-title">CONTROLS</p>
+      <div class="controls"> 
+        <div class="controls-col-1">
+          <span class="controls-small" aria-label="subir">↑</span> 
+          <span class="controls-small" aria-label="bajar">↓</span>
+        </div>
+        <div class="controls-col-2">
+          <span class="controls-big" aria-label="acelerar">SPACE BAR TO ACCELERATE</span>
+        </div>
+      </div>
+      <button >Iniciar Juego</button>
+    </div>
     <button id="restartBtn" style="display: none;">Volver a Empezar</button>
   </div>
 </div>
