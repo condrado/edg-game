@@ -1,165 +1,195 @@
-
 <!DOCTYPE html>
 <html lang="es">
-<head>
-  <meta charset="UTF-8">
-  <title>Nave a la Luna</title>
-  <style>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Nave a la Luna</title>
+    <style>
+      :root {
+        --main-bg-color: #000;
+        --main-border-color: #000;
+        --main-text-color: #fff;
+        --main-bg-sec-color: #fff;
+        --main-border-sec-color: #fff;
+        --main-text-sec-color: #000;
+      }
 
-    @font-face {
-      font-family: 'slunssen';
-      src: url('assets/fonts/Slussen-Regular.otf') format('opentype');
-      font-weight: normal;
-      font-style: normal;
-    }
+      [data-mode="dark"] {
+        --main-bg-color: #fff;
+        --main-border-color: #fff;
+        --main-text-color: #000;
+        --main-bg-sec-color: #000;
+        --main-border-sec-color: #000;
+        --main-text-sec-color: #fff;
+      }
 
-    /* Reset CSS básico */
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      font-family: "slunssen";
-    }
+      @font-face {
+        font-family: "slunssen";
+        src: url("assets/fonts/Slussen-Regular.otf") format("opentype");
+        font-weight: normal;
+        font-style: normal;
+      }
 
-    html, body {
-      height: 100%;
-      font-family: sans-serif;
-    }
+      /* Reset CSS básico */
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "slunssen";
+      }
 
-    img, picture, video, canvas, svg {
-      display: block;
-      max-width: 100%;
-      height: auto;
-    }
+      html,
+      body {
+        height: 100%;
+        font-family: sans-serif;
+      }
 
-    button, input, textarea, select {
-      font: inherit;
-      border: none;
-      background: none;
-      outline: none;
-    }
+      img,
+      picture,
+      video,
+      canvas,
+      svg {
+        display: block;
+        max-width: 100%;
+        height: auto;
+      }
 
-    ul, ol {
-      list-style: none;
-    }
+      button,
+      input,
+      textarea,
+      select {
+        font: inherit;
+        border: none;
+        background: none;
+        outline: none;
+      }
 
-    a {
-      text-decoration: none;
-      color: inherit;
-    }
+      ul,
+      ol {
+        list-style: none;
+      }
 
-    body {
-      margin: 0;
-      background: #fff;
-      text-align: center;
-    }
-    canvas {
-      display: block;
-      margin: auto;
-      background-color: white;
-      border: 1px solid #000;
-      width: 100%;
-    }
+      a {
+        text-decoration: none;
+        color: inherit;
+      }
 
-    .game-container {
-      position: relative;
-      width: 100%;
-      max-width: 1600px;
-      margin: auto;
-    }
+      body {
+        margin: 0;
+        background: var(--main-bg-sec-color);
+        text-align: center;
+      }
+      canvas {
+        display: block;
+        margin: auto;
+        background-color: var(--main-bg-sec-color);
+        border: 1px solid var(--main-border-sec-color);
+        width: 100%;
+      }
 
-    #gameCanvas {
-      display: block;
-      width: 100%;
-    }
+      .game-container {
+        position: relative;
+        width: 100%;
+        max-width: 1600px;
+        margin: auto;
+      }
 
-    .button-overlay {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      display: flex;
-      gap: 0;
-    }
+      #gameCanvas {
+        display: block;
+        width: 100%;
+      }
 
-    .button-overlay button {
-      padding: 10px 20px;
-      font-size: 18px;
-      background-color: black;
-      color: white;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-    }
+      .button-overlay {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        display: flex;
+        gap: 0;
+      }
 
-    .controls {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 32px;
-    }
+      .button-overlay button {
+        padding: 10px 20px;
+        font-size: 18px;
+        background-color: var(--main-bg-color);
+        color: var(--main-text-color);
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+      }
 
-    .controls-title {
-      font-size: 24px;
-      font-weight: bold;
-      margin-bottom: 32px;
-    }
+      .controls {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 32px;
+      }
 
-    .controls-col-1{
-      width: 100px;
-    }
+      .controls-title {
+        font-size: 24px;
+        font-weight: bold;
+        margin-bottom: 32px;
+        color: var(--main-text-sec-color);
+      }
 
-    .controls-col-2 {
-      width: 360px;
-      display: flex;
-      justify-content: end;
-    }
+      .controls-col-1 {
+        width: 100px;
+      }
 
-    .controls-small {
-      width: 100px;
-      height: 100px;
-      border-radius: 8px;
-      border: 1px solid #000000;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      background-color: #fff;
-      margin-bottom: 2px;;
-    }
+      .controls-col-2 {
+        width: 360px;
+        display: flex;
+        justify-content: end;
+      }
 
-    .controls-big {
-      width: 300px;
-      height: 100px;
-      border-radius: 8px;
-      border: 1px solid #000000;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      font-size: 12px;
-      background-color: #fff;
-    }
-  </style>
-</head>
-<body>
-<div class="game-container">
-  <canvas id="gameCanvas" width="1600" height="570"></canvas>
-  <div class="button-overlay">
-    <div id="startBtn" class="btn-init">
-      <p class="controls-title">CONTROLS</p>
-      <div class="controls"> 
-        <div class="controls-col-1">
-          <span class="controls-small" aria-label="subir">↑</span> 
-          <span class="controls-small" aria-label="bajar">↓</span>
+      .controls-small {
+        width: 100px;
+        height: 100px;
+        border-radius: 8px;
+        border: 1px solid var(--main-border-color);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        color: var(--main-text-sec-color);
+        background-color: var(--main-bg-sec-color);
+        margin-bottom: 2px;
+      }
+
+      .controls-big {
+        width: 300px;
+        height: 100px;
+        border-radius: 8px;
+        border: 1px solid var(--main-border-color);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 12px;
+        color: var(--main-text-sec-color);
+        background-color: var(--main-bg-sec-color);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="game-container" data-mode="dark">
+      <canvas id="gameCanvas" width="1600" height="570"></canvas>
+      <div class="button-overlay">
+        <div class="btn-init">
+          <p class="controls-title">CONTROLS</p>
+          <div class="controls">
+            <div class="controls-col-1">
+              <span class="controls-small" aria-label="subir">↑</span>
+              <span class="controls-small" aria-label="bajar">↓</span>
+            </div>
+            <div class="controls-col-2">
+              <span class="controls-big" aria-label="acelerar"
+                >SPACE BAR TO ACCELERATE</span
+              >
+            </div>
+          </div>
+          <button id="startBtn">Iniciar Juego</button>
         </div>
-        <div class="controls-col-2">
-          <span class="controls-big" aria-label="acelerar">SPACE BAR TO ACCELERATE</span>
-        </div>
+        <button id="restartBtn" style="display: none">Volver a Empezar</button>
       </div>
-      <button >Iniciar Juego</button>
     </div>
-    <button id="restartBtn" style="display: none;">Volver a Empezar</button>
-  </div>
-</div>
-  <script src="game.js"></script>
-</body>
+    <script src="game.js"></script>
+  </body>
 </html>
