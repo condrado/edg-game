@@ -360,8 +360,6 @@ function draw() {
     // drawTriangleBoundingBox();
   }
 
-
-
   // Solo actualizar tiempo si el juego ha empezado, está activo (no terminado) y no pausado
   if (gameStarted && !gameOver && !gameWon && !timerPaused) {
     updateTimeDisplay();
