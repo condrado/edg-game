@@ -5,7 +5,8 @@
     <title>Nave a la Luna</title>
     <style>
       :root {
-        --main-bg-color: #000;
+        --main-bg-color: #fff;
+        --main-bg-btn-color: #000;
         --main-border-color: #000;
         --main-text-color: #fff;
         --main-bg-sec-color: #fff;
@@ -14,8 +15,9 @@
       }
 
       [data-mode="dark"] {
-        --main-bg-color: #fff;
-        --main-border-color: #fff;
+        --main-bg-color: #000;
+        --main-bg-btn-color: #fff;
+        --main-border-color: #4c4a4a;
         --main-text-color: #000;
         --main-bg-sec-color: #000;
         --main-border-sec-color: #000;
@@ -86,35 +88,218 @@
         width: 100%;
       }
 
-      .game-container {
-        position: relative;
+      /* Espaciador para empujar el game-wrapper hacia abajo */
+      .spacer {
+        height: 1000px;
+        width: 100%;
+      }
+
+      /* Wrapper con altura dinámica */
+      .game-wrapper {
         width: 100%;
         max-width: 1600px;
         margin: auto;
+        position: relative;
+        /* Altura será establecida por JavaScript */
       }
 
-      #gameCanvas {
-        display: block;
-        width: 100%;
-      }
-
-      .button-overlay {
+      /* Logo centrado en el wrapper */
+      .game-logo {
         position: absolute;
         top: 50%;
         left: 50%;
         transform: translate(-50%, -50%);
-        display: flex;
-        gap: 0;
+        z-index: -1; /* Fondo, por debajo de todo */
+        width: auto; /* Mantiene proporción original del logo */
+        max-width: 90%; /* Para que no se salga del contenedor horizontalmente */
+        /* Altura será establecida por JavaScript basada en proporción 210/683 */
       }
 
-      .button-overlay button {
-        padding: 10px 20px;
-        font-size: 18px;
+      /* Container que maneja el efecto persiana */
+      .game-container {
+        position: absolute;
+        bottom: 0; /* Alineado al fondo para que se pliegue hacia abajo */
+        width: 100%;
+        overflow: hidden;
+        transition: height 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
         background-color: var(--main-bg-color);
+        border-radius: 8px;
+        /* Altura será establecida por JavaScript */
+      }
+
+      /* Efecto persiana - se cierra hacia abajo manteniendo contenido fijo */
+      /* Eliminamos la altura fija del CSS para que JavaScript tenga control completo */
+
+      /* Canvas fijo en la parte inferior del paisaje */
+      #gameCanvas {
+        position: absolute;
+        bottom: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        max-width: 100%; /* Se adapta si el contenedor es menor */
+        display: block;
+        transition: opacity 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        z-index: 1;
+      }
+
+      /* Canvas cuando se minimiza */
+      .game-container.minimized #gameCanvas {
+        opacity: 0;
+        z-index: 0;
+      }
+
+      /* Canvas cuando no está minimizado */
+      .game-container:not(.minimized) #gameCanvas {
+        opacity: 1;
+        z-index: 1;
+      }
+
+      /* Button-overlay centrado dinámicamente en el paisaje */
+      .button-overlay {
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 2; /* Encima del canvas */
+        display: flex;
+        gap: 0;
+        transition: opacity 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        /* bottom será establecido dinámicamente por JavaScript */
+      }
+
+      /* Button-overlay cuando se minimiza */
+      .game-container.minimized .button-overlay {
+        opacity: 0;
+        z-index: 0;
+        pointer-events: none; /* Evita interacciones cuando está oculto */
+      }
+
+      /* Button-overlay cuando no está minimizado */
+      .game-container:not(.minimized) .button-overlay {
+        opacity: 1;
+        z-index: 2;
+        pointer-events: auto;
+      }
+
+      /* Botón de cierre fijo */
+      .btn-close {
+        position: absolute;
+        right: 2px;
+        bottom: 2px;
+        width: 105px;
+        height: 105px;
+        flex-shrink: 0; /* No se encoge */
+        z-index: 3;
+        cursor: pointer;
+      }
+
+      /* Caja del tiempo fija en esquina inferior izquierda */
+      .time-box {
+        position: absolute;
+        left: 2px;
+        bottom: 2px;
+        width: 165px;
+        height: 105px;
+        background-color: var(--main-bg-btn-color);
         color: var(--main-text-color);
+        border-radius: 8px;
+        z-index: 3;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-family: "slunssen";
+        font-size: 12px;
+        flex-shrink: 0; /* No se encoge */
+        transition: opacity 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      }
+
+      /* Time-box cuando se minimiza */
+      .game-container.minimized .time-box {
+        opacity: 0;
+        z-index: 0;
+        pointer-events: none; /* Evita interacciones cuando está oculto */
+      }
+
+      /* Time-box cuando no está minimizado */
+      .game-container:not(.minimized) .time-box {
+        opacity: 1;
+        z-index: 3;
+        pointer-events: auto;
+      }
+
+      /* Estilo específico para el display del tiempo */
+      #timeDisplay {
+        width: 80px; /* Ancho fijo para evitar movimiento */
+        text-align: center;
+      }
+
+      /* Botón restart con los mismos estilos que time-box */
+      .restart-btn {
+        position: absolute;
+        left: 2px;
+        bottom: 2px;
+        width: 165px;
+        height: 105px;
+        background-color: var(--main-bg-btn-color);
+        color: var(--main-text-color);
+        border-radius: 8px;
+        z-index: 3;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-family: "slunssen";
+        font-size: 16px;
+        flex-shrink: 0;
+        transition: opacity 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        cursor: pointer;
+        border: none;
+        gap: 8px;
+      }
+
+      /* Restart-btn cuando se minimiza */
+      .game-container.minimized .restart-btn {
+        opacity: 0;
+        z-index: 0;
+        pointer-events: none;
+      }
+
+      /* Restart-btn cuando no está minimizado */
+      .game-container:not(.minimized) .restart-btn {
+        opacity: 1;
+        z-index: 3;
+        pointer-events: auto;
+      }
+
+      .restart-btn img {
+        width: 20px;
+        height: 20px;
+      }
+
+      .btn-init {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .btn-default {
+        font-size: 12px;
+        text-transform: uppercase;
+        background-color: var(--main-bg-btn-color);
+        color: var(--main-text-color);
+        justify-content: center;
+        align-items: center;
+        padding: 10px 20px;
         border: none;
         border-radius: 8px;
         cursor: pointer;
+        display: flex;
+      }
+
+      .button-overlay .btn-default {
+        width: 254px;
+      }
+
+      .button-overlay .btn-default img {
+        margin: 0 8px 0 0;
       }
 
       .controls {
@@ -136,7 +321,7 @@
       }
 
       .controls-col-2 {
-        width: 360px;
+        width: 308px;
         display: flex;
         justify-content: end;
       }
@@ -151,7 +336,22 @@
         align-items: center;
         color: var(--main-text-sec-color);
         background-color: var(--main-bg-sec-color);
-        margin-bottom: 2px;
+        margin-bottom: 8px;
+      }
+
+      .controls-small:last-child {
+        margin-bottom: 0;
+      }
+
+      .controls-small-up,
+      .controls-small-down,
+      .controls-small-space {
+        width: auto;
+        height: 12px;
+      }
+
+      .controls-small-space {
+        margin-bottom: 24px;
       }
 
       .controls-big {
@@ -165,30 +365,117 @@
         font-size: 12px;
         color: var(--main-text-sec-color);
         background-color: var(--main-bg-sec-color);
+        flex-direction: column;
+      }
+
+      .btn-close .controls-small-stop {
+        margin: 0;
+        width: 40px;
+        height: 40px;
+      }
+      .sr-only {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px; /* Para evitar que ocupe espacio en el layout */
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0); /* Obsoleto pero buen fallback */
+        white-space: nowrap; /* Evita que el texto se parta en varias líneas */
+        border-width: 0; /* Asegura que no haya borde */
       }
     </style>
   </head>
   <body>
-    <div class="game-container" data-mode="dark">
-      <canvas id="gameCanvas" width="1600" height="570"></canvas>
-      <div class="button-overlay">
-        <div class="btn-init">
-          <p class="controls-title">CONTROLS</p>
-          <div class="controls">
-            <div class="controls-col-1">
-              <span class="controls-small" aria-label="subir">↑</span>
-              <span class="controls-small" aria-label="bajar">↓</span>
+    <div class="spacer"></div>
+    <div class="game-wrapper" data-mode="dark">
+      <div class="game-container minimized" style="height: 109px">
+        <canvas id="gameCanvas" width="1600" height="570"></canvas>
+        <div class="button-overlay">
+          <div class="btn-init">
+            <p class="controls-title">CONTROLS</p>
+            <div class="controls">
+              <div class="controls-col-1">
+                <div class="controls-small">
+                  <img
+                    class="controls-small-up"
+                    aria-label="subir"
+                    src="assets/arrow-up.svg"
+                    alt="Subir"
+                  />
+                </div>
+                <div class="controls-small">
+                  <img
+                    class="controls-small-down"
+                    aria-label="bajar"
+                    src="assets/arrow-down.svg"
+                    alt="Bajar"
+                  />
+                </div>
+              </div>
+              <div class="controls-col-2">
+                <div class="controls-big">
+                  <img
+                    class="controls-small-space"
+                    aria-label="bajar"
+                    src="assets/arrow-space.svg"
+                    alt="Bajar"
+                  />
+                  <span class="" aria-label="acelerar"
+                    >SPACE BAR TO ACCELERATE</span
+                  >
+                </div>
+              </div>
             </div>
-            <div class="controls-col-2">
-              <span class="controls-big" aria-label="acelerar"
-                >SPACE BAR TO ACCELERATE</span
-              >
-            </div>
+            <button class="btn-default" id="startBtn">
+              <img
+                class="controls-small-play"
+                aria-label="Iniciar el juego"
+                src="assets/play.png"
+                alt="Iniciar el juego"
+              />
+              Play
+            </button>
           </div>
-          <button id="startBtn">Iniciar Juego</button>
         </div>
-        <button id="restartBtn" style="display: none">Volver a Empezar</button>
+        <button class="btn-default btn-close" id="stopBtn">
+          <img
+            class="controls-small-stop"
+            aria-label="Cerrar juego"
+            src="assets/icon-close.png"
+            alt="Cerrar juego"
+          />
+          <span class="sr-only">Stop</span>
+        </button>
+        <div class="time-box" id="timeBox">
+          <img
+            class="controls-small-stop"
+            aria-label="Cerrar juego"
+            src="assets/icon-time.svg"
+            alt="Cerrar juego"
+          />
+          <span id="timeDisplay">00:00 s</span>
+        </div>
+        <button
+          class="btn-default restart-btn"
+          id="restartBtn"
+          style="display: none"
+        >
+          <img
+            class="controls-small-stop"
+            aria-label="Jugar de nuevo"
+            src="assets/icon-return.svg"
+            alt="Jugar de nuevo"
+          />
+          PLAY AGAIN
+        </button>
       </div>
+      <img
+        class="game-logo"
+        src="assets/edg-logo-bk.svg"
+        alt="Fondo Espacial"
+        srcset=""
+      />
     </div>
     <script src="game.js"></script>
   </body>
