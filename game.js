@@ -24,6 +24,23 @@ crashIconImg.src = "assets/icon-crashed.svg";
 const starIconImg = new Image();
 starIconImg.src = "assets/icon-star.svg";
 
+// Imágenes de explosión
+const shipCrashed1Img = new Image();
+shipCrashed1Img.src = "assets/ship-crashed-1.svg";
+
+const shipCrashed2Img = new Image();
+shipCrashed2Img.src = "assets/ship-crashed-2.svg";
+
+const shipCrashed3Img = new Image();
+shipCrashed3Img.src = "assets/ship-crashed-3.svg";
+
+// Configuración de tamaños de explosión (dimensiones exactas de los SVG)
+const explosionSizes = {
+  1: { width: 39, height: 46 }, // ship-crashed-1.svg
+  2: { width: 76, height: 89 }, // ship-crashed-2.svg
+  3: { width: 97, height: 113 }, // ship-crashed-3.svg
+};
+
 // Imágenes de meteoritos
 const meteor1Img = new Image();
 meteor1Img.src = "assets/meteor-1.png";
@@ -62,6 +79,11 @@ const ship = {
   arriving: false, // indica si está en la animación lenta final
   scale: 1, // Escala de la nave (1 = tamaño normal, 0 = invisible)
   enteringMoon: false, // indica si está entrando en la luna
+  crashed: false, // indica si ha chocado
+  explosionPhase: 0, // 0 = sin explosión, 1, 2, 3 = fases de explosión
+  explosionStartTime: null, // tiempo de inicio de la explosión
+  explosionX: 0, // posición X de la explosión
+  explosionY: 0, // posición Y de la explosión
 };
 
 const background = {
@@ -219,6 +241,22 @@ function update() {
     }
   }
 
+  // Actualizar animación de explosión
+  if (ship.crashed && ship.explosionStartTime) {
+    const elapsed = Date.now() - ship.explosionStartTime;
+
+    if (elapsed >= 0 && elapsed < 500) {
+      // Fase 1: ship-crashed-1.svg (0-0.5 segundos)
+      ship.explosionPhase = 1;
+    } else if (elapsed >= 500 && elapsed < 1000) {
+      // Fase 2: ship-crashed-2.svg (0.5-1 segundo)
+      ship.explosionPhase = 2;
+    } else if (elapsed >= 1000) {
+      // Fase 3: ship-crashed-3.svg (1+ segundos)
+      ship.explosionPhase = 3;
+    }
+  }
+
   // No ejecutar lógica del juego si está pausado
   if (gamePaused) {
     return;
@@ -281,10 +319,18 @@ function update() {
   }
 
   for (let meteor of meteors) {
-    if (!gameWon && circleCollisionWithTriangle(meteor)) {
+    if (!gameWon && !ship.crashed && circleCollisionWithTriangle(meteor)) {
       gameOver = true;
       endTime = Date.now(); // Parar tiempo en colisión
       updateTimeDisplay(); // Actualización final del tiempo
+
+      // Activar explosión (solo una vez) y guardar posición del meteorito
+      ship.crashed = true;
+      ship.explosionPhase = 1;
+      ship.explosionStartTime = Date.now();
+      // Posicionar la explosión a la izquierda del meteorito
+      ship.explosionX = meteor.x;
+      ship.explosionY = meteor.y + meteor.height / 2;
     }
   }
 
@@ -385,7 +431,10 @@ function draw() {
   }
 
   // Mostrar la nave según el estado de entrada/animación
-  if (ship.entering) {
+  if (ship.crashed && ship.explosionPhase > 0) {
+    // Mostrar animación de explosión
+    drawExplosion();
+  } else if (ship.entering) {
     drawShipWithScale(shipSpeedImg);
   } else if (ship.arriving) {
     drawShipWithScale(shipImg);
@@ -415,6 +464,42 @@ function draw() {
     );
     ctx.restore();
     // drawTriangleBoundingBox();
+  }
+
+  // Función para dibujar las explosiones con sus dimensiones correctas
+  function drawExplosion() {
+    let explosionImg;
+    let explosionSize;
+
+    switch (ship.explosionPhase) {
+      case 1:
+        explosionImg = shipCrashed1Img;
+        explosionSize = explosionSizes[1];
+        break;
+      case 2:
+        explosionImg = shipCrashed2Img;
+        explosionSize = explosionSizes[2];
+        break;
+      case 3:
+        explosionImg = shipCrashed3Img;
+        explosionSize = explosionSizes[3];
+        break;
+      default:
+        return;
+    }
+
+    // Calcular posición para centrar la explosión en la posición del meteorito
+    const explosionX = ship.explosionX - explosionSize.width / 2;
+    const explosionY = ship.explosionY - explosionSize.height / 2;
+
+    // Dibujar la explosión con sus dimensiones naturales
+    ctx.drawImage(
+      explosionImg,
+      explosionX,
+      explosionY,
+      explosionSize.width,
+      explosionSize.height
+    );
   }
 
   // Solo actualizar tiempo si el juego ha empezado, está activo (no terminado) y no pausado
@@ -667,6 +752,11 @@ function restartGame() {
   ship.arriving = false;
   ship.scale = 1; // Reiniciar escala normal
   ship.enteringMoon = false; // Reiniciar animación lunar
+  ship.crashed = false; // Reiniciar estado de choque
+  ship.explosionPhase = 0; // Reiniciar fase de explosión
+  ship.explosionStartTime = null; // Reiniciar tiempo de explosión
+  ship.explosionX = 0; // Reiniciar posición X de explosión
+  ship.explosionY = 0; // Reiniciar posición Y de explosión
 
   // Reiniciar posición de la luna
   moon.x = canvas.width + distanceToMoon;
