@@ -121,26 +121,19 @@ const meteors = [];
 let meteorInterval = null;
 
 function spawnMeteor() {
-  // Seleccionar aleatoriamente tipo de meteorito (meteor-1 o meteor-2)
-  const imageIndex = Math.floor(Math.random() * meteorImages.length);
-  const meteorImage = meteorImages[imageIndex];
-
-  // Seleccionar aleatoriamente tamaño (pequeño, mediano, grande)
-  const sizeIndex = Math.floor(Math.random() * meteorSizes.length);
-  const size = meteorSizes[sizeIndex];
-
+  const meteorImage =
+    meteorImages[Math.floor(Math.random() * meteorImages.length)];
+  const size = meteorSizes[Math.floor(Math.random() * meteorSizes.length)];
   const y = Math.random() * (canvas.height - size.height);
   meteors.push({
     x: canvas.width + Math.random() * 570,
     y,
     width: size.width,
     height: size.height,
-    radius: size.radius, // Radio específico para colisiones
+    radius: size.radius,
     speed: 2 + Math.random() * 2,
     angle: Math.random() * Math.PI * 2,
-    image: meteorImage, // Referencia a la imagen específica
-    type: imageIndex, // 0 = meteor-1, 1 = meteor-2
-    sizeType: sizeIndex, // 0 = pequeño, 1 = mediano, 2 = grande
+    image: meteorImage,
   });
 }
 
@@ -252,14 +245,14 @@ function update() {
   if (ship.crashed && ship.explosionStartTime) {
     const elapsed = Date.now() - ship.explosionStartTime;
 
-    if (elapsed >= 0 && elapsed < 500) {
-      // Fase 1: ship-crashed-1.svg (0-0.5 segundos)
+    if (elapsed >= 0 && elapsed < 250) {
+      // Fase 1: ship-crashed-1.svg (0-0.25 segundos)
       ship.explosionPhase = 1;
-    } else if (elapsed >= 500 && elapsed < 1000) {
-      // Fase 2: ship-crashed-2.svg (0.5-1 segundo)
+    } else if (elapsed >= 250 && elapsed < 500) {
+      // Fase 2: ship-crashed-2.svg (0.25-0.5 segundos)
       ship.explosionPhase = 2;
-    } else if (elapsed >= 1000) {
-      // Fase 3: ship-crashed-3.svg (1+ segundos)
+    } else if (elapsed >= 500) {
+      // Fase 3: ship-crashed-3.svg (0.5+ segundos)
       ship.explosionPhase = 3;
     }
   }
@@ -269,11 +262,10 @@ function update() {
     return;
   }
 
-  // Animar entrada de la nave solo después de pulsar startBtn
+  // Animar entrada de la nave
   if (ship.entering) {
-    // Entrada rápida desacelerando
     let distanceToTarget = ship.targetX + 50 - ship.x;
-    let speed = Math.max(3, distanceToTarget * 0.08); // desacelera al acercarse
+    let speed = Math.max(3, distanceToTarget * 0.08);
     ship.x += speed;
     if (ship.x >= ship.targetX + 50) {
       ship.x = ship.targetX + 50;
@@ -283,13 +275,11 @@ function update() {
     return;
   }
   if (ship.arriving) {
-    // Desplazamiento lento a la izquierda hasta targetX
     ship.x -= 1.5;
     if (ship.x <= ship.targetX) {
       ship.x = ship.targetX;
       ship.arriving = false;
       gameStarted = true;
-      // startTime ya fue establecido al hacer clic en Play
       meteorInterval = setInterval(spawnMeteor, intervalMeteor);
     }
     return;
@@ -328,14 +318,13 @@ function update() {
   for (let meteor of meteors) {
     if (!gameWon && !ship.crashed && circleCollisionWithTriangle(meteor)) {
       gameOver = true;
-      endTime = Date.now(); // Parar tiempo en colisión
-      updateTimeDisplay(); // Actualización final del tiempo
+      endTime = Date.now();
+      updateTimeDisplay();
 
-      // Activar explosión (solo una vez) y guardar posición del meteorito
+      // Activar explosión
       ship.crashed = true;
       ship.explosionPhase = 1;
       ship.explosionStartTime = Date.now();
-      // Posicionar la explosión a la izquierda del meteorito
       ship.explosionX = meteor.x;
       ship.explosionY = meteor.y + meteor.height / 2;
     }
@@ -393,25 +382,6 @@ function drawStars() {
   }
 }
 
-function drawTriangleBoundingBox() {
-  ctx.strokeStyle = "red";
-  ctx.beginPath();
-  ctx.moveTo(ship.x + 49, ship.y);
-  ctx.lineTo(ship.x + 49, ship.y + ship.height);
-  ctx.lineTo(ship.x + 160, ship.y + ship.height / 2);
-  ctx.closePath();
-  ctx.stroke();
-}
-
-function drawMeteorBoundingBox(meteor) {
-  const cx = meteor.x + meteor.width / 2;
-  const cy = meteor.y + meteor.height / 2;
-  ctx.beginPath();
-  ctx.strokeStyle = "red";
-  ctx.arc(cx, cy, meteor.radius, 0, Math.PI * 2); // Usar el radio específico del meteorito
-  ctx.stroke();
-}
-
 function draw() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   ctx.fillStyle = modeDark ? "#000" : "#fff";
@@ -421,20 +391,19 @@ function draw() {
 
   ctx.drawImage(moonImg, moon.x, moon.y, moon.width, moon.height);
 
-  // Dibujar meteoritos siempre que existan
+  // Dibujar meteoritos
   for (let meteor of meteors) {
     ctx.save();
     ctx.translate(meteor.x + meteor.width / 2, meteor.y + meteor.height / 2);
     ctx.rotate(meteor.angle);
     ctx.drawImage(
-      meteor.image, // Usar la imagen específica del meteorito
+      meteor.image,
       -meteor.width / 2,
       -meteor.height / 2,
       meteor.width,
       meteor.height
     );
     ctx.restore();
-    //drawMeteorBoundingBox(meteor);
   }
 
   // Mostrar la nave según el estado de entrada/animación
@@ -452,15 +421,10 @@ function draw() {
 
   // Función para dibujar la nave con escala
   function drawShipWithScale(shipImage) {
-    if (ship.scale <= 0) return; // No dibujar si la escala es 0 o negativa
+    if (ship.scale <= 0) return;
 
     ctx.save();
-    const scaledWidth = ship.width * ship.scale;
-    const scaledHeight = ship.height * ship.scale;
-    const centerX = ship.x + ship.width / 2;
-    const centerY = ship.y + ship.height / 2;
-
-    ctx.translate(centerX, centerY);
+    ctx.translate(ship.x + ship.width / 2, ship.y + ship.height / 2);
     ctx.scale(ship.scale, ship.scale);
     ctx.drawImage(
       shipImage,
@@ -470,42 +434,25 @@ function draw() {
       ship.height
     );
     ctx.restore();
-    // drawTriangleBoundingBox();
   }
 
-  // Función para dibujar las explosiones con sus dimensiones correctas
+  // Función para dibujar las explosiones
   function drawExplosion() {
-    let explosionImg;
-    let explosionSize;
+    const explosions = [
+      { img: shipCrashed1Img, size: explosionSizes[1] },
+      { img: shipCrashed2Img, size: explosionSizes[2] },
+      { img: shipCrashed3Img, size: explosionSizes[3] },
+    ];
 
-    switch (ship.explosionPhase) {
-      case 1:
-        explosionImg = shipCrashed1Img;
-        explosionSize = explosionSizes[1];
-        break;
-      case 2:
-        explosionImg = shipCrashed2Img;
-        explosionSize = explosionSizes[2];
-        break;
-      case 3:
-        explosionImg = shipCrashed3Img;
-        explosionSize = explosionSizes[3];
-        break;
-      default:
-        return;
-    }
+    const explosion = explosions[ship.explosionPhase - 1];
+    if (!explosion) return;
 
-    // Calcular posición para centrar la explosión en la posición del meteorito
-    const explosionX = ship.explosionX - explosionSize.width / 2;
-    const explosionY = ship.explosionY - explosionSize.height / 2;
-
-    // Dibujar la explosión con sus dimensiones naturales
     ctx.drawImage(
-      explosionImg,
-      explosionX,
-      explosionY,
-      explosionSize.width,
-      explosionSize.height
+      explosion.img,
+      ship.explosionX - explosion.size.width / 2,
+      ship.explosionY - explosion.size.height / 2,
+      explosion.size.width,
+      explosion.size.height
     );
   }
 
