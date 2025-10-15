@@ -235,6 +235,11 @@
         transition: opacity 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
       }
 
+      .time-box span {
+        font-weight: 500;
+        font-family: slunssen-extended-medium, sans-serif;
+      }
+
       /* Time-box cuando se minimiza */
       .game-container.minimized .time-box {
         opacity: 0;
@@ -251,7 +256,7 @@
 
       /* Estilo específico para el display del tiempo */
       #timeDisplay {
-        width: 80px; /* Ancho fijo para evitar movimiento */
+        width: 64px; /* Ancho fijo para evitar movimiento */
         text-align: center;
       }
 
@@ -275,6 +280,7 @@
         gap: 8px; /* Espacio entre ícono y texto */
         visibility: hidden; /* Oculto inicialmente */
         transition: opacity 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        width: 200px;
       }
 
       /* Ícono del boost */
@@ -288,6 +294,7 @@
       .boost-text {
         white-space: nowrap;
         font-weight: 500;
+        font-family: slunssen-extended-medium, sans-serif;
       }
 
       /* Boost-box cuando se minimiza */
@@ -339,11 +346,12 @@
         opacity: 1;
         z-index: 3;
         pointer-events: auto;
+        width: 196px;
       }
 
       .restart-btn img {
-        width: 20px;
-        height: 20px;
+        width: 24px;
+        height: 24px;
       }
 
       .btn-init {
@@ -364,10 +372,13 @@
         border-radius: 8px;
         cursor: pointer;
         display: flex;
+        font-weight: 500;
+        font-family: slunssen-extended-medium, sans-serif;
       }
 
       .button-overlay .btn-default {
         width: 254px;
+        height: 46px;
       }
 
       .button-overlay .btn-default img {
@@ -383,9 +394,10 @@
 
       .controls-title {
         font-size: 24px;
-        font-weight: 400;
         margin-bottom: 32px;
         color: var(--main-text-sec-color);
+        font-family: slunssen-extended-extended, sans-serif;
+        font-weight: 700;
       }
 
       .controls-col-1 {
@@ -442,15 +454,15 @@
 
       /* Estilos para el ícono close */
       .btn-close .close-icon {
-        width: 16px;
-        height: 16px;
+        width: 24px;
+        height: 24px;
         margin-right: 8px;
       }
 
       /* Estilos para el texto close */
       .btn-close .close-text {
-        font-family: slunssen-extended-regular, sans-serif;
-        font-size: 10px;
+        font-family: slunssen-extended-medium, sans-serif;
+        font-size: 12px;
         font-weight: 500;
         white-space: nowrap;
         color: inherit;

@@ -3,36 +3,43 @@ const ctx = canvas.getContext("2d");
 const modeDark =
   document.querySelector(".game-wrapper").dataset.mode === "dark";
 
+// Ruta base de los assets
+const ASSETS_PATH = "assets/";
+
 // Imágenes
 const shipImg = new Image();
-shipImg.src = modeDark ? "assets/ship-dark.svg" : "assets/ship.png";
+shipImg.src = modeDark
+  ? ASSETS_PATH + "ship-dark.svg"
+  : ASSETS_PATH + "ship.png";
 
 const shipSpeedImg = new Image();
 shipSpeedImg.src = modeDark
-  ? "assets/ship-speed-dark.svg"
-  : "assets/ship-speed.svg";
+  ? ASSETS_PATH + "ship-speed-dark.svg"
+  : ASSETS_PATH + "ship-speed.svg";
 
 const moonImg = new Image();
-moonImg.src = modeDark ? "assets/moon-dark.png" : "assets/moon.png";
+moonImg.src = modeDark
+  ? ASSETS_PATH + "moon-dark.png"
+  : ASSETS_PATH + "moon.png";
 
 const timeIconImg = new Image();
-timeIconImg.src = "assets/icon-time.png";
+timeIconImg.src = ASSETS_PATH + "icon-time.png";
 
 const crashIconImg = new Image();
-crashIconImg.src = "assets/icon-crashed.svg";
+crashIconImg.src = ASSETS_PATH + "icon-crashed.svg";
 
 const starIconImg = new Image();
-starIconImg.src = "assets/icon-star.svg";
+starIconImg.src = ASSETS_PATH + "icon-star.svg";
 
 // Imágenes de explosión
 const shipCrashed1Img = new Image();
-shipCrashed1Img.src = "assets/ship-crashed-1.svg";
+shipCrashed1Img.src = ASSETS_PATH + "ship-crashed-1.svg";
 
 const shipCrashed2Img = new Image();
-shipCrashed2Img.src = "assets/ship-crashed-2.svg";
+shipCrashed2Img.src = ASSETS_PATH + "ship-crashed-2.svg";
 
 const shipCrashed3Img = new Image();
-shipCrashed3Img.src = "assets/ship-crashed-3.svg";
+shipCrashed3Img.src = ASSETS_PATH + "ship-crashed-3.svg";
 
 // Configuración de tamaños de explosión (dimensiones exactas de los SVG)
 const explosionSizes = {
@@ -43,10 +50,10 @@ const explosionSizes = {
 
 // Imágenes de meteoritos
 const meteor1Img = new Image();
-meteor1Img.src = "assets/meteor-1.png";
+meteor1Img.src = ASSETS_PATH + "meteor-1.png";
 
 const meteor2Img = new Image();
-meteor2Img.src = "assets/meteor-2.png";
+meteor2Img.src = ASSETS_PATH + "meteor-2.png";
 
 // Configuración de tamaños de meteoritos (ancho = alto para hacer cuadrados, radio de colisión)
 const meteorSizes = [
