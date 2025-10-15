@@ -25,9 +25,23 @@
       }
 
       @font-face {
-        font-family: "slunssen";
-        src: url("assets/fonts/Slussen-Regular.otf") format("opentype");
+        font-family: "slunssen-extended-regular";
+        src: url("assets/fonts/Slussen-ExtendedRegular.woff2") format("woff2");
         font-weight: normal;
+        font-style: normal;
+      }
+
+      @font-face {
+        font-family: "slunssen-extended-medium";
+        src: url("assets/fonts/Slussen-Extended-Medium.woff2") format("woff2");
+        font-weight: 500; /* Medium */
+        font-style: normal;
+      }
+
+      @font-face {
+        font-family: "slunssen-extended-extended";
+        src: url("assets/fonts/Slussen-SemiboldExtended.woff2") format("woff2");
+        font-weight: 600; /* Semibold */
         font-style: normal;
       }
 
@@ -36,7 +50,7 @@
         margin: 0;
         padding: 0;
         box-sizing: border-box;
-        font-family: "slunssen";
+        font-family: slunssen-extended-regular, sans-serif;
       }
 
       html,
@@ -103,16 +117,22 @@
         /* Altura será establecida por JavaScript */
       }
 
-      /* Logo centrado en el wrapper */
+      /* Logo centrado en el wrapper con posición fija */
       .game-logo {
         position: absolute;
-        top: 50%;
+        top: calc(
+          (100% - 109px) / 2
+        ); /* Posición fija centrada en el espacio disponible (excluyendo 109px del container) */
         left: 50%;
         transform: translate(-50%, -50%);
         z-index: -1; /* Fondo, por debajo de todo */
+
+        /* Tamaño responsivo basado en la proporción del wrapper */
+        height: 30.75%; /* Equivale a la proporción 210/683 = 0.3075 de la altura del wrapper */
         width: auto; /* Mantiene proporción original del logo */
         max-width: 90%; /* Para que no se salga del contenedor horizontalmente */
-        /* Altura será establecida por JavaScript basada en proporción 210/683 */
+        min-height: 150px; /* Mínimo para evitar que sea demasiado pequeño */
+        max-height: 300px; /* Máximo para evitar que sea demasiado grande */
       }
 
       /* Container que maneja el efecto persiana */
@@ -140,6 +160,7 @@
         display: block;
         transition: opacity 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
         z-index: 1;
+        margin-bottom: 105px;
       }
 
       /* Canvas cuando se minimiza */
@@ -154,16 +175,18 @@
         z-index: 1;
       }
 
-      /* Button-overlay centrado dinámicamente en el paisaje */
+      /* Button-overlay centrado respecto al canvas (considerando margen inferior 105px) */
       .button-overlay {
         position: absolute;
         left: 50%;
-        transform: translateX(-50%);
+        top: calc(
+          50% - 52.5px
+        ); /* Ajuste para centrarse en la zona del canvas */
+        transform: translate(-50%, -50%);
         z-index: 2; /* Encima del canvas */
         display: flex;
         gap: 0;
         transition: opacity 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-        /* bottom será establecido dinámicamente por JavaScript */
       }
 
       /* Button-overlay cuando se minimiza */
@@ -185,7 +208,7 @@
         position: absolute;
         right: 2px;
         bottom: 2px;
-        width: 105px;
+        width: 195px;
         height: 105px;
         flex-shrink: 0; /* No se encoge */
         z-index: 3;
@@ -206,7 +229,7 @@
         display: flex;
         justify-content: center;
         align-items: center;
-        font-family: "slunssen";
+        font-family: slunssen-extended-regular, sans-serif;
         font-size: 12px;
         flex-shrink: 0; /* No se encoge */
         transition: opacity 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
@@ -232,6 +255,55 @@
         text-align: center;
       }
 
+      /* Caja del boost junto al timeBox */
+      .boost-box {
+        position: absolute;
+        left: 175px; /* Posicionado justo al lado del timeBox (165px + 10px margen) */
+        bottom: 2px;
+        height: 105px; /* Misma altura que time-box */
+        background-color: #000; /* Fondo negro */
+        color: white;
+        border: 2px solid #4c4a4a; /* Borde color especificado */
+        border-radius: 8px;
+        z-index: 3;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-family: slunssen-extended-regular, sans-serif;
+        font-size: 12px;
+        padding: 0 12px;
+        gap: 8px; /* Espacio entre ícono y texto */
+        visibility: hidden; /* Oculto inicialmente */
+        transition: opacity 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      }
+
+      /* Ícono del boost */
+      .boost-icon {
+        width: 20px;
+        height: 20px;
+        flex-shrink: 0;
+      }
+
+      /* Texto del boost */
+      .boost-text {
+        white-space: nowrap;
+        font-weight: 500;
+      }
+
+      /* Boost-box cuando se minimiza */
+      .game-container.minimized .boost-box {
+        opacity: 0;
+        z-index: 0;
+        pointer-events: none;
+      }
+
+      /* Boost-box cuando no está minimizado */
+      .game-container:not(.minimized) .boost-box {
+        opacity: 1;
+        z-index: 3;
+        pointer-events: auto;
+      }
+
       /* Botón restart con los mismos estilos que time-box */
       .restart-btn {
         position: absolute;
@@ -246,7 +318,7 @@
         display: flex;
         justify-content: center;
         align-items: center;
-        font-family: "slunssen";
+        font-family: slunssen-extended-regular, sans-serif;
         font-size: 16px;
         flex-shrink: 0;
         transition: opacity 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
@@ -311,7 +383,7 @@
 
       .controls-title {
         font-size: 24px;
-        font-weight: bold;
+        font-weight: 400;
         margin-bottom: 32px;
         color: var(--main-text-sec-color);
       }
@@ -368,10 +440,20 @@
         flex-direction: column;
       }
 
-      .btn-close .controls-small-stop {
-        margin: 0;
-        width: 40px;
-        height: 40px;
+      /* Estilos para el ícono close */
+      .btn-close .close-icon {
+        width: 16px;
+        height: 16px;
+        margin-right: 8px;
+      }
+
+      /* Estilos para el texto close */
+      .btn-close .close-text {
+        font-family: slunssen-extended-regular, sans-serif;
+        font-size: 10px;
+        font-weight: 500;
+        white-space: nowrap;
+        color: inherit;
       }
       .sr-only {
         position: absolute;
@@ -440,12 +522,11 @@
         </div>
         <button class="btn-default btn-close" id="stopBtn">
           <img
-            class="controls-small-stop"
-            aria-label="Cerrar juego"
-            src="assets/icon-close.png"
-            alt="Cerrar juego"
+            class="close-icon"
+            src="assets/icon-close-small.svg"
+            alt="Close"
           />
-          <span class="sr-only">Stop</span>
+          <span class="close-text">CLOSE</span>
         </button>
         <div class="time-box" id="timeBox">
           <img
@@ -455,6 +536,10 @@
             alt="Cerrar juego"
           />
           <span id="timeDisplay">00:00 s</span>
+        </div>
+        <div class="boost-box" id="boostBox">
+          <img class="boost-icon" src="assets/arrow-space.svg" alt="Boost" />
+          <span class="boost-text">BOOST (SPACE)</span>
         </div>
         <button
           class="btn-default restart-btn"

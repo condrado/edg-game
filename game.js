@@ -18,6 +18,12 @@ moonImg.src = modeDark ? "assets/moon-dark.png" : "assets/moon.png";
 const timeIconImg = new Image();
 timeIconImg.src = "assets/icon-time.png";
 
+const crashIconImg = new Image();
+crashIconImg.src = "assets/icon-crashed.svg";
+
+const starIconImg = new Image();
+starIconImg.src = "assets/icon-star.svg";
+
 // Imágenes de meteoritos
 const meteor1Img = new Image();
 meteor1Img.src = "assets/meteor-1.png";
@@ -161,7 +167,58 @@ let targetY = null;
 let timerPaused = true; // Controla si el temporizador está pausado (inicia pausado)
 const landingSpeed = 0.05;
 
+// Variables para el texto de inicio
+let showStartText = false;
+let startTextOpacity = 0;
+let startTextStartTime = null;
+const startTextDuration = 3000; // 3 segundos
+
+// Función para calcular valores escalados basados en el ancho del canvas
+function getScaledValue(baseValue) {
+  // Ancho base del canvas donde los valores se ven con el tamaño correcto
+  const baseCanvasWidth = 1600;
+
+  // Obtener ancho visual actual del canvas sin cambiar su resolución interna
+  const canvasRect = canvas.getBoundingClientRect();
+  const currentCanvasWidth = canvasRect.width;
+
+  // Calcular el factor de escala inverso
+  // Si canvas se reduce a 800px (50%), los valores deben duplicarse (200%)
+  const scaleFactor = baseCanvasWidth / currentCanvasWidth;
+
+  // Aplicar el escalado inverso al valor base
+  const scaledValue = baseValue * scaleFactor;
+
+  return Math.max(1, Math.round(scaledValue)); // Mínimo 1px
+}
+
+// Función para calcular el tamaño de fuente que visualmente parezca 14px
+function getScaledFontSize(baseFontSize) {
+  return getScaledValue(baseFontSize);
+}
+
 function update() {
+  // Actualizar animación del texto de inicio
+  if (showStartText && startTextStartTime) {
+    const elapsed = Date.now() - startTextStartTime;
+
+    if (elapsed <= 500) {
+      // Fade in durante los primeros 500ms (0.5 segundos)
+      startTextOpacity = elapsed / 500;
+    } else if (elapsed <= startTextDuration - 500) {
+      // Mantener opacidad completa
+      startTextOpacity = 1;
+    } else if (elapsed <= startTextDuration) {
+      // Fade out durante los últimos 500ms
+      startTextOpacity = 1 - (elapsed - (startTextDuration - 500)) / 500;
+    } else {
+      // Ocultar texto completamente
+      showStartText = false;
+      startTextOpacity = 0;
+      startTextStartTime = null;
+    }
+  }
+
   // No ejecutar lógica del juego si está pausado
   if (gamePaused) {
     return;
@@ -365,26 +422,54 @@ function draw() {
     updateTimeDisplay();
   }
 
+  // Dibujar texto de inicio si está activo
+  if (showStartText && startTextOpacity > 0) {
+    drawStartText();
+  }
+
   if ((gameOver || gameWon) && !gamePaused) {
     if (gameOver) {
-      // Texto simple para choque
+      // Texto y icono para choque
       ctx.fillStyle = modeDark ? "#fff" : "#000";
-      ctx.font = "32px slunssen";
+      const crashFontSize = getScaledFontSize(24);
+      const crashIconSize = getScaledValue(24);
+      const crashSeparation = getScaledValue(24);
+
+      // Calcular altura total del conjunto (ícono + separación + texto)
+      const totalHeight = crashIconSize + crashSeparation + crashFontSize;
+
+      // Centrar el conjunto completo verticalmente en el canvas
+      const centerY = canvas.height / 2;
+      const startY = centerY - totalHeight / 2;
+
+      // Posiciones calculadas desde el punto de inicio centrado
+      const iconX = canvas.width / 2 - crashIconSize / 2;
+      const iconY = startY;
+      const textY = startY + crashIconSize + crashSeparation + crashFontSize;
+
+      // Dibujar ícono de crash
+      ctx.drawImage(crashIconImg, iconX, iconY, crashIconSize, crashIconSize);
+
+      // Dibujar texto
+      ctx.font = `${crashFontSize}px slunssen-extended-regular`;
       ctx.textAlign = "center";
-      ctx.fillText("HAS CHOCADO!", canvas.width / 2, 220);
+      ctx.fillText("OH NO...YOU'VE CRASHED!", canvas.width / 2, textY);
     } else if (gameWon) {
       // Textos especiales para victoria
       drawVictoryTexts();
     }
 
-    // Mostrar botón restart en la posición del time-box
+    // Ocultar timeBox y boostBox, mostrar botón restart
+    document.getElementById("timeBox").style.visibility = "hidden";
+    document.getElementById("boostBox").style.visibility = "hidden";
     document.getElementById("restartBtn").removeAttribute("style");
   }
 
   // Función para dibujar los textos de victoria
   function drawVictoryTexts() {
     ctx.fillStyle = modeDark ? "#fff" : "#000";
-    ctx.font = "24px slunssen";
+    const victoryFontSize = getScaledFontSize(24);
+    ctx.font = `${victoryFontSize}px slunssen-extended-regular`;
 
     // Texto "EDG TO THE MOON" a la izquierda de la luna
     ctx.textAlign = "right";
@@ -425,6 +510,44 @@ function draw() {
     }
     return "00:00 S";
   }
+}
+
+// Función para dibujar el texto de inicio
+function drawStartText() {
+  ctx.save();
+
+  // Aplicar opacidad
+  ctx.globalAlpha = startTextOpacity;
+
+  // Configurar color
+  ctx.fillStyle = modeDark ? "#fff" : "#000";
+
+  // Calcular tamaños escalados
+  const startFontSize = getScaledFontSize(24);
+  const startIconSize = getScaledValue(24);
+  const startSeparation = getScaledValue(24);
+
+  // Calcular altura total del conjunto (ícono + separación + texto)
+  const totalHeight = startIconSize + startSeparation + startFontSize;
+
+  // Centrar el conjunto completo verticalmente en el canvas
+  const centerY = canvas.height / 2;
+  const startY = centerY - totalHeight / 2;
+
+  // Posiciones calculadas desde el punto de inicio centrado
+  const iconX = canvas.width / 2 - startIconSize / 2;
+  const iconY = startY;
+  const textY = startY + startIconSize + startSeparation + startFontSize;
+
+  // Dibujar ícono de estrella
+  ctx.drawImage(starIconImg, iconX, iconY, startIconSize, startIconSize);
+
+  // Dibujar texto
+  ctx.font = `${startFontSize}px slunssen-extended-regular`;
+  ctx.textAlign = "center";
+  ctx.fillText("LET'S GET TO THE MOON!", canvas.width / 2, textY);
+
+  ctx.restore();
 }
 
 // Función para actualizar el tiempo en la caja HTML
@@ -482,10 +605,38 @@ document.addEventListener("keyup", (e) => {
 
 document.getElementById("startBtn").addEventListener("click", () => {
   if (!gameStarted && !ship.entering) {
+    // Iniciar juego por primera vez
     document.getElementById("startBtn").parentElement.style.display = "none";
+    document.getElementById("timeBox").style.visibility = "visible"; // Mostrar timeBox
+    document.getElementById("boostBox").style.visibility = "visible"; // Mostrar boostBox
     ship.x = ship.targetX - 300;
     ship.entering = true;
     startTime = Date.now(); // Iniciar tiempo inmediatamente
+
+    // Iniciar animación del texto de inicio
+    showStartText = true;
+    startTextStartTime = Date.now();
+    startTextOpacity = 0;
+  } else if (
+    gameStarted &&
+    gamePaused &&
+    timerPaused &&
+    !gameOver &&
+    !gameWon
+  ) {
+    // Reanudar juego pausado (por cambio de pestaña)
+    gamePaused = false;
+    timerPaused = false;
+
+    // Restaurar interval de meteoritos si no existe
+    if (!meteorInterval) {
+      meteorInterval = setInterval(spawnMeteor, intervalMeteor);
+    }
+
+    // Ocultar controles y mostrar timeBox y boostBox
+    document.getElementById("startBtn").parentElement.style.display = "none";
+    document.getElementById("timeBox").style.visibility = "visible"; // Mostrar timeBox
+    document.getElementById("boostBox").style.visibility = "visible"; // Mostrar boostBox
   }
 });
 
@@ -502,6 +653,11 @@ function restartGame() {
   targetY = null;
   timerPaused = false; // Reiniciar estado del temporizador
   distance = moon.x - ship.x - ship.width;
+
+  // Reiniciar variables del texto de inicio
+  showStartText = false;
+  startTextOpacity = 0;
+  startTextStartTime = null;
 
   // Reiniciar posición de la nave
   ship.x = 150 - 300; // Posición inicial fuera de pantalla
@@ -529,9 +685,11 @@ function restartGame() {
   down = false;
   accelerate = false;
 
-  // Mostrar controles iniciales y ocultar botón restart
+  // Mostrar controles iniciales, ocultar botón restart, timeBox y boostBox
   document.getElementById("startBtn").parentElement.style.display = "";
   document.getElementById("restartBtn").style.display = "none";
+  document.getElementById("timeBox").style.visibility = "hidden";
+  document.getElementById("boostBox").style.visibility = "hidden";
 
   // Restaurar visibilidad normal del button-overlay
   const buttonOverlay = document.querySelector(".button-overlay");
@@ -547,6 +705,35 @@ document.getElementById("restartBtn").addEventListener("click", () => {
   restartGame();
 });
 
+// Detectar cuando el usuario cambia de pestaña para pausar el juego
+document.addEventListener("visibilitychange", () => {
+  if (document.hidden) {
+    // El usuario cambió de pestaña o minimizó el navegador
+    if (gameStarted && !gameOver && !gameWon && !gamePaused) {
+      // Solo pausar si el juego está activo
+      gamePaused = true;
+      timerPaused = true;
+
+      // Limpiar interval de meteoritos para evitar acumulación
+      if (meteorInterval) {
+        clearInterval(meteorInterval);
+        meteorInterval = null;
+      }
+
+      // Mostrar controles y ocultar timeBox y boostBox para que el usuario pueda reanudar
+      document.getElementById("startBtn").parentElement.style.display = "";
+      document.getElementById("timeBox").style.visibility = "hidden";
+      document.getElementById("boostBox").style.visibility = "hidden";
+    }
+  } else {
+    // El usuario volvió a la pestaña
+    if (gameStarted && !gameOver && !gameWon && gamePaused && timerPaused) {
+      // Solo mostrar mensaje si el juego estaba pausado por cambio de pestaña
+      // Nota: El juego NO se reanuda automáticamente, el usuario debe hacer clic en Play
+    }
+  }
+});
+
 // Función para calcular y establecer alturas dinámicas basadas en el canvas
 function updateContainerHeights() {
   const canvas = document.getElementById("gameCanvas");
@@ -557,65 +744,36 @@ function updateContainerHeights() {
   const canvasRect = canvas.getBoundingClientRect();
   const canvasHeight = canvasRect.height;
 
-  console.log("Altura real del canvas:", canvasHeight + "px");
+  // Calcular altura total incluyendo margen inferior del canvas (105px)
+  const totalHeight = canvasHeight + 105;
 
-  // Establecer altura del wrapper igual al canvas
-  gameWrapper.style.height = canvasHeight + "px";
+  // Establecer altura del wrapper incluyendo el margen
+  gameWrapper.style.height = totalHeight + "px";
 
   // Establecer altura del container (si no está minimizado)
   if (!gameContainer.classList.contains("minimized")) {
-    gameContainer.style.height = canvasHeight + "px";
+    gameContainer.style.height = totalHeight + "px";
   }
 
-  // Actualizar tamaño del logo EDG basado en proporción con wrapper
-  const gameLogo = document.querySelector(".game-logo");
-  if (gameLogo) {
-    const wrapperHeight = canvasHeight;
-    // Proporción: si wrapper=683px entonces logo=210px (210/683 = 0.3075)
-    const logoHeight = wrapperHeight * 0.3075;
-    gameLogo.style.height = logoHeight + "px";
+  // El tamaño del logo ahora se maneja completamente con CSS
+}
 
-    console.log("=== TAMAÑO LOGO EDG ===");
-    console.log("Wrapper altura:", wrapperHeight + "px");
-    console.log("Logo altura calculada:", logoHeight + "px");
-  }
-
-  // Centrar button-overlay específicamente en game-wrapper
-  const buttonOverlay = document.querySelector(".button-overlay");
-  if (buttonOverlay) {
-    // Obtener altura real del game-wrapper
-    const wrapperRect = gameWrapper.getBoundingClientRect();
-    const wrapperHeight = wrapperRect.height;
-
-    // Obtener altura del button-overlay para centrarlo correctamente
-    const overlayRect = buttonOverlay.getBoundingClientRect();
-    const overlayHeight = overlayRect.height;
-
-    // Fórmula de centrado: (altura_wrapper - altura_overlay) / 2
-    const centerPosition = (wrapperHeight - overlayHeight) / 2;
-
-    // Asegurar que la posición no sea negativa
-    const finalPosition = Math.max(0, centerPosition);
-
-    buttonOverlay.style.bottom = finalPosition + "px";
-
-    console.log("=== CENTRADO BUTTON-OVERLAY ===");
-    console.log("Game-wrapper altura:", wrapperHeight + "px");
-    console.log("Button-overlay altura:", overlayHeight + "px");
-    console.log(
-      "Cálculo: (" + wrapperHeight + " - " + overlayHeight + ") / 2 =",
-      centerPosition
-    );
-    console.log("Posición final bottom:", finalPosition + "px");
-  }
+// Función combinada para manejar resize
+function handleResize() {
+  updateContainerHeights();
 }
 
 // Llamar al cargar la página y cuando cambie el tamaño de ventana
 window.addEventListener("load", () => {
   // Pequeño delay para asegurar que todo esté renderizado
-  setTimeout(updateContainerHeights, 100);
+  setTimeout(() => {
+    updateContainerHeights();
+    // Asegurar que timeBox y boostBox estén ocultos inicialmente
+    document.getElementById("timeBox").style.visibility = "hidden";
+    document.getElementById("boostBox").style.visibility = "hidden";
+  }, 100);
 });
-window.addEventListener("resize", updateContainerHeights);
+window.addEventListener("resize", handleResize);
 
 // Asegurar que se ejecute después de que las imágenes se carguen
 canvas.addEventListener("load", () => {
@@ -639,9 +797,10 @@ document.getElementById("stopBtn").addEventListener("click", (e) => {
 
     gameContainer.classList.remove("minimized");
 
-    // Restaurar altura basada en el canvas
+    // Restaurar altura basada en el canvas + margen
     const canvasRect = canvas.getBoundingClientRect();
-    gameContainer.style.height = canvasRect.height + "px";
+    const totalHeight = canvasRect.height + 105;
+    gameContainer.style.height = totalHeight + "px";
   }
 });
 
